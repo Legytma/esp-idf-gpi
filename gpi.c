@@ -53,7 +53,7 @@ ESP_EVENT_DEFINE_BASE(GPI_EVENT);
 
 static TaskHandle_t gpi_task_handle = NULL;
 
-static void gpi_write(uint64_t output_mask, uint64_t value) {
+static inline void gpi_write(uint64_t output_mask, uint64_t value) {
 	GPIO.out = (GPIO.out & ((uint32_t)~output_mask)) |
 			   (((uint32_t)value) & ((uint32_t)output_mask));
 	GPIO.out1.data =
@@ -74,7 +74,7 @@ static void gpi_write_event_handler(void* handler_args, esp_event_base_t base,
 	}
 }
 
-static uint64_t gpi_get(uint64_t input_mask) {
+static inline uint64_t gpi_get(uint64_t input_mask) {
 	return (GPIO.in | ((uint64_t)GPIO.in1.data << 32)) & input_mask;
 }
 
@@ -140,6 +140,8 @@ esp_err_t gpi_init(gpi_config_t* gpi_config) {
 			return ret;
 		}
 	}
+
+	gpi_write(gpi_config->output_config.pin_bit_mask, gpi_config->output_value);
 
 	if (gpi_config->output_config.pin_bit_mask > 0) {
 
